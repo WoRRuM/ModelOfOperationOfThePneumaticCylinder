@@ -21,10 +21,10 @@ __attribute__((unused)) void pneumoEngineInit(struct PneumoEngine* engine) {
         engine->delay = 0;
         engine->timeout = 0;
 
-        delay_timeout_init(engine, 45, 70, ;
+        delay_timeout_init(engine, 45, 70, PneumoState_0);
         delay_timeout_init(engine, 56, 70, PneumoState_1);
         delay_timeout_init(engine, 56, 60, PneumoState_2);
-        delay_timeout_init(engine, 45, 78, PneumoState_3);PneumoState_0)
+        delay_timeout_init(engine, 45, 78, PneumoState_3);
         delay_timeout_init(engine, 120, 45, PneumoState_4);
         delay_timeout_init(engine, 56, 45, PneumoState_5);
         delay_timeout_init(engine, 120, 33, PneumoState_6);
