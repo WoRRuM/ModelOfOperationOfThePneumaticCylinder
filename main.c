@@ -2,6 +2,7 @@
 
 #define TIMEOUT_DELTA(timeout) ((timeout) * 1000)
 #define DELAY_DELTA(delay) ((delay) * 1000)
+#define NC -1
 
 void delay_timeout_init(struct PneumoEngine* engine, int delta_t, int delta_d, enum PneumoState state) {
     engine->timeouts[state] = TIMEOUT_DELTA(delta_t);
@@ -53,7 +54,7 @@ void pneumo_error_handler(struct PneumoEngine* engine, enum PneumoState state) {
     engine->timeout = 0;
 }
 
-void pneumo_state_changer(struct PneumoEngine* engine, int cylinderSignals[]) {
+void pneumo_state_changer(struct PneumoEngine* engine, const int cylinderSignals[]) {
     for (int i = 0; i < 8; i++)
     {
         switch (cylinderSignals[i])
@@ -68,18 +69,20 @@ void pneumo_state_changer(struct PneumoEngine* engine, int cylinderSignals[]) {
     }
 }
 
-bool pneumo_state_checker(struct PneumoEngine* engine, int cylinderSignals[]) {
+bool pneumo_state_checker(struct PneumoEngine* engine, const int cylinderSignals[]) {
     for (int i = 0; i < 8; i++)
     {
         switch (cylinderSignals[i])
         {
-            case 0:
+            case 0: // Поршень опущен
                 if (!engine->cylinders[i].input_signal[PNEUMO_CYLINDER_SIGNAL_DOWN])
                     return false;
                 break;
-            case 1:
+            case 1: // Поршень поднят
                 if (!engine->cylinders[i].input_signal[PNEUMO_CYLINDER_SIGNAL_UP])
                     return false;
+                break;
+            case -1: //
                 break;
         }
     }
@@ -111,93 +114,93 @@ bool pneumo_engine_tick(struct PneumoEngine* engine) {
         return false;
     switch (engine->state) {
         case PneumoState_0: {
-            int cylinder_sygnals[] = {0, 0, 0, 0, 0, 0, 0, 0 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_1, PneumoState_FatalException);
+            int cylinderSignals[] = {0, 0, 0, 0, 0, 0, 0, 0 };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_1, PneumoState_FatalException);
             break;
         }
         case PneumoState_1: {
-            int cylinder_sygnals[] = {0, 1, 0, 0, 0, 0, 0, 0 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_3, PneumoState_FatalException);
+            int cylinderSignals[] = {NC, 1, NC, NC, NC, NC, NC, NC };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_3, PneumoState_FatalException);
             break;
         }
         case PneumoState_2: {
-            int cylinder_sygnals[] = { 0, 1, 0, 0, 0, 0, 0, 0 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_4, PneumoState_FatalException);
+            int cylinderSignals[] = {NC, 0, NC, 1, NC, NC, NC, 1 };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_4, PneumoState_FatalException);
             break;
         }
         case PneumoState_3: {
-            int cylinder_sygnals[] = { 0, 0, 0, 1, 0, 0, 0, 1 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_4, PneumoState_FatalException);
+            int cylinderSignals[] = {NC, 1, 1, NC, NC, NC, NC, NC };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_4, PneumoState_FatalException);
             break;
         }
         case PneumoState_4: {
-            int cylinder_sygnals[] = { 1, 0, 0, 0, 1, 1, 1, 0 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_5, PneumoState_FatalException);
+            int cylinderSignals[] = {1, 0, 0, 0, 1, 1, 1, 0 };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_5, PneumoState_FatalException);
             break;
         }
         case PneumoState_5: {
-            int cylinder_sygnals[] = { 1, 0, 1, 1, 0, 1, 1, 0 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_6, PneumoState_FatalException);
+            int cylinderSignals[] = {NC, NC, 1, 1, 0, NC, NC, NC };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_6, PneumoState_FatalException);
             break;
         }
         case PneumoState_6: {
-            int cylinder_sygnals[] = { 1, 1, 0, 1, 0, 1, 1, 0 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_7, PneumoState_FatalException);
+            int cylinderSignals[] = {NC, 1, 0, NC, NC, NC, NC, NC };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_7, PneumoState_FatalException);
             break;
         }
         case PneumoState_7: {
-            int cylinder_sygnals[] = { 1, 0, 0, 1, 0, 1, 1, 1 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_8, PneumoState_4);
+            int cylinderSignals[] = {NC, 0, NC, NC, NC, NC, NC, 1 };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_8, PneumoState_4);
             break;
         }
         case PneumoState_8: {
-            int cylinder_sygnals[] = { 0, 0, 0, 1, 0, 0, 1, 0 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_9, PneumoState_12);
+            int cylinderSignals[] = {0, NC, NC, NC, NC, 0, NC, 0 };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_9, PneumoState_12);
             break;
         }
         case PneumoState_9: {
-            int cylinder_sygnals[] = { 1, 1, 1, 0, 1, 1, 0, 0 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_10, PneumoState_FatalException);
+            int cylinderSignals[] = {1, 1, 1, 0, 1, 1, 0, NC };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_10, PneumoState_FatalException);
             break;
         }
         case PneumoState_10: {
-            int cylinder_sygnals[] = { 0, 0, 0, 1, 0, 0, 0, 1 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_11, PneumoState_FatalException);
+            int cylinderSignals[] = {0, 0, 0, 1, 0, 0, NC, 1 };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_11, PneumoState_FatalException);
             break;
         }
         case PneumoState_11: {
-            int cylinder_sygnals[] = { 0, 1, 0, 1, 0, 0, 0, 1 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_12, PneumoState_FatalException);
+            int cylinderSignals[] = {NC, 1, NC, NC, NC, NC, NC, NC };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_12, PneumoState_FatalException);
             break;
         }
         case PneumoState_12: {
-            int cylinder_sygnals[] = { 1, 1, 0, 0, 1, 0, 0, 0 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_13, PneumoState_FatalException);
+            int cylinderSignals[] = {1, NC, NC, 0, 1, NC, NC, 0 };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_13, PneumoState_FatalException);
             break;
         }
         case PneumoState_13: {
-            int cylinder_sygnals[] = { 0, 0, 1, 0, 0, 1, 1, 1 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_14, PneumoState_FatalException);
+            int cylinderSignals[] = {0, 0, 1, NC, 0, 1, 1, 1 };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_14, PneumoState_FatalException);
             break;
         }
         case PneumoState_14: {
-            int cylinder_sygnals[] = { 0, 0, 1, 1, 1, 0, 0, 1 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_15, PneumoState_FatalException);
+            int cylinderSignals[] = {NC, NC, NC, 1, 1, 0, 0, NC };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_15, PneumoState_FatalException);
             break;
         }
         case PneumoState_15: {
-            int cylinder_sygnals[] = { 1, 1, 1, 1, 0, 0, 1, 0 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_16, PneumoState_FatalException);
+            int cylinderSignals[] = {1, 1, NC, NC, 0, NC, 1, 0 };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_16, PneumoState_FatalException);
             break;
         }
         case PneumoState_16: {
-            int cylinder_sygnals[] = { 0, 1, 0, 0, 1, 1, 0, 1 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_17, PneumoState_FatalException);
+            int cylinderSignals[] = {0, NC, 0, 0, 1, 1, 0, 1 };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_17, PneumoState_FatalException);
             break;
         }
         case PneumoState_17: {
-            int cylinder_sygnals[] = { 0, 0, 1, 1, 0, 0, 0, 1 };
-            pneumo_state_body(engine, cylinder_sygnals, PneumoState_0, PneumoState_FatalException);
+            int cylinderSignals[] = {NC, 0, 1, 1, 0, 0, NC, NC };
+            pneumo_state_body(engine, cylinderSignals, PneumoState_0, PneumoState_FatalException);
             break;
         }
         case PneumoState_FatalException: {

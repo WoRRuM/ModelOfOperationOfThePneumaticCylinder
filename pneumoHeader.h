@@ -54,8 +54,8 @@ void delay_timeout_init(struct PneumoEngine *engine, int delta_t, int delta_d, e
 
 void pneumo_state_body(struct PneumoEngine *engine, int cylinderSignals[], enum PneumoState next_state, enum PneumoState error_state);
 
-void pneumo_state_changer(struct PneumoEngine* engine, int cylinderSignals[]);
+void pneumo_state_changer(struct PneumoEngine* engine, const int cylinderSignals[]);
 
-bool pneumo_state_checker(struct PneumoEngine* engine, int cylinderSignals[]);
+bool pneumo_state_checker(struct PneumoEngine* engine, const int cylinderSignals[]);
 
 #endif //MODELOFOPERATIONOFTHEPNEUMATICCYLINDER_PNEUMOHEADER_H
