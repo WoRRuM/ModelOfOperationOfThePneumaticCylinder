@@ -20,6 +20,7 @@ enum PneumoState {
 
 #define PNEUMO_CYLINDER_SIGNAL_UP 0
 #define PNEUMO_CYLINDER_SIGNAL_DOWN 1
+#define PNEUMO_CYLINDER_SIGNAL_NOT_CHANGED -1
 
 struct PneumoCylinder {
     int input_signal[2];
@@ -43,19 +44,19 @@ struct PneumoEngine {
     int delays[PneumoState_FatalException];
     struct PneumoCylinder cylinders[8];
 };
-//функции автомата
+
 __attribute__((unused)) void pneumoEngineInit(struct PneumoEngine *engine);
 
-bool pneumo_engine_tick(struct PneumoEngine *engine);
+__attribute__((unused)) bool pneumoEngineTick(struct PneumoEngine *engine);
 
-void pneumo_error_handler(struct PneumoEngine *engine, enum PneumoState state);
+void pneumoErrorHandler(struct PneumoEngine *engine, enum PneumoState state);
 
-void delay_timeout_init(struct PneumoEngine *engine, int delta_t, int delta_d, enum PneumoState state);
+void delayTimeoutInit(struct PneumoEngine *engine, int delta_t, int delta_d, enum PneumoState state);
 
-void pneumo_state_body(struct PneumoEngine *engine, int cylinderSignals[], enum PneumoState next_state, enum PneumoState error_state);
+void pneumoStateBody(struct PneumoEngine *engine, int cylinderSignals[], enum PneumoState next_state, enum PneumoState error_state);
 
-void pneumo_state_changer(struct PneumoEngine* engine, const int cylinderSignals[]);
+void pneumoStateChanger(struct PneumoEngine* engine, const int cylinderSignals[]);
 
-bool pneumo_state_checker(struct PneumoEngine* engine, const int cylinderSignals[]);
+bool pneumoStateChecker(struct PneumoEngine* engine, const int cylinderSignals[]);
 
 #endif //MODELOFOPERATIONOFTHEPNEUMATICCYLINDER_PNEUMOHEADER_H
